@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Created-By: Keno Ob
+Main-Class: Main.class
