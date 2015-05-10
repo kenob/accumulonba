@@ -24,22 +24,31 @@ public class Main extends Configured implements Tool {
     @Override
     public int run(String[] strings) throws Exception {
         Job job1 = new Job(getConf(),Main.class.getName());
-
-        System.out.println("Arguments");
-        for (String s : strings){
-            System.out.println(s);
+        String[] zookeepers = new String[2];
+        String inputDir = "";
+        String tableName = "";
+        for (int i=0; i<strings.length; i++){
+            if (strings[i].equals("-z")){
+                zookeepers = strings[i+1].split(",");
+            }
+            else if (strings[i].equals("-i")){
+                inputDir = strings[i+1];
+            }
+            else if (strings[i].equals("-t")){
+                tableName = strings[i+1];
+            }
         }
 
         job1.setJarByClass(Main.class);
         job1.setInputFormatClass(TextInputFormat.class);
-        TextInputFormat.setInputPaths(job1, new Path(strings[2]));
+        TextInputFormat.setInputPaths(job1, new Path(inputDir));
         job1.setMapperClass(Job1.Map.class);
         job1.setNumReduceTasks(0);
         job1.setOutputFormatClass(AccumuloOutputFormat.class);
         job1.setOutputKeyClass(Text.class);
         job1.setOutputValueClass(Mutation.class);
-        AccumuloOutputFormat.setOutputInfo(job1.getConfiguration(), "root", "acc".getBytes(), true, strings[3]);
-        AccumuloOutputFormat.setZooKeeperInstance(job1.getConfiguration(), strings[0], strings[1]);
+        AccumuloOutputFormat.setOutputInfo(job1.getConfiguration(), "root", "acc".getBytes(), true, tableName);
+        AccumuloOutputFormat.setZooKeeperInstance(job1.getConfiguration(), zookeepers[0], zookeepers[1]);
         job1.waitForCompletion(true);
         return 0;
     }
