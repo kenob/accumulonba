@@ -25,6 +25,11 @@ public class Main extends Configured implements Tool {
     public int run(String[] strings) throws Exception {
         Job job1 = new Job(getConf(),Main.class.getName());
 
+        System.out.println("Arguments");
+        for (String s : strings){
+            System.out.println(s);
+        }
+
         job1.setJarByClass(Main.class);
         job1.setInputFormatClass(TextInputFormat.class);
         TextInputFormat.setInputPaths(job1, new Path(strings[2]));
@@ -38,6 +43,7 @@ public class Main extends Configured implements Tool {
         job1.waitForCompletion(true);
         return 0;
     }
+
 
     public static void main(String[] args) throws Exception {
         ToolRunner.run(new Configuration(), new Main(), args);
