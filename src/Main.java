@@ -2,6 +2,7 @@ import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -55,7 +56,7 @@ public class Main extends Configured implements Tool {
 
 
     public static void main(String[] args) throws Exception {
-        ToolRunner.run(new Configuration(), new Main(), args);
+        ToolRunner.run(CachedConfiguration.getInstance(), new Main(), args);
     }
 
     public class Job1{
