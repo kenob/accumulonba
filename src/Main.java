@@ -2,6 +2,7 @@ import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -11,6 +12,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 
@@ -35,6 +37,10 @@ public class Main extends Configured implements Tool {
         AccumuloOutputFormat.setZooKeeperInstance(job1.getConfiguration(), strings[0], strings[1]);
         job1.waitForCompletion(true);
         return 0;
+    }
+
+    public static void main(String[] args) throws Exception {
+        ToolRunner.run(new Configuration(), new Main(), args);
     }
 
     public class Job1{
