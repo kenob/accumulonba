@@ -1,0 +1,36 @@
+Eastern	Conference	Atlantic	Division
+Boston	Celtics #Celtics @Celtics
+New	York	Knicks #Knicks @NYKnicks
+Philadelphia	76ers #76ers @Sixers
+New	Jersey	Nets #Nets @NetsBasketball
+Toronto	Raptors #Raptors @Raptors
+Eastern	Conference	Central	Division
+Chicago	Bulls #Bulls @ChicagoBulls
+Indiana	Pacers #Pacers @Pacers
+Milwaukee	Bucks #Bucks @Bucks
+Detroit	Pistons #Pistons @DetroitPistons
+Cleveland	Cavaliers #Cavs @Cavs
+Eastern	Conference	Southeast	Division
+Miami	Heat #MiamiHeat @MiamiHEAT
+Orlando	Magic #OrlandoMagic, @Orlando_Magic
+Atlanta	Hawks #Hawks @Atlanta_Hawks
+Charlotte	Bobcats #Bobcats @Bobcats
+Washington	Wizards #Wizards @WashWizards
+Western	Conference	Northwest	Division
+Oklahoma	City #okcthunder @OKCThunder
+Denver	Nuggets #Nuggets @DenverNuggets
+Portland	Trailblazers #TrailBlazers @PDXTrailBlazers
+Utah	Jazz #UtahJazz @Utah_Jazz
+Minnesota	Timberwolves #TWolves @MNTimberwolves
+Western	Conference	Pacific	Division
+LA	Lakers #Lakers @Lakers
+Phoenix	Suns #Suns @PhoenixSuns
+Golden	State	Warriors #GSWarriors @Warriors
+L.A.	Clippers #Clippers @LAClippers
+Sacramento	Kings #NBAKings @SacramentoKings
+Western	Conference	Southwest	Division
+San	Antonio	Spurs #GoSpursGo @Spurs
+Dallas	Mavericks #Mavs @DallasMavs
+New	Orleans	Hornets #Hornets @Hornets
+Memphis	Grizzlies #Grizzlies @memgrizz
+Houston	Rockets #Rockets @HoustonRockets
