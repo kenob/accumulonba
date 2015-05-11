@@ -28,7 +28,9 @@ public class Main extends Configured implements Tool {
         String[] zookeepers = new String[2];
         String inputDir = "";
         String tableName = "";
+
         for (int i=0; i<strings.length; i++){
+            System.out.println(strings[i]);
             if (strings[i].equals("-zz")){
                 zookeepers = strings[i+1].split(",");
             }
