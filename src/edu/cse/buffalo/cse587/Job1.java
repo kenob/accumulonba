@@ -28,7 +28,7 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
                 String teamName = pathNames[pathNames.length - 1].split("\\.")[0];
                 String conference = pathNames[pathNames.length - 2];
                 Text teamID = new Text(teamName);
-                Text wordText = new Text(word);
+                Text wordText = new Text(word.toLowerCase());
                 Text c = new Text(word);
                 Value count = new Value("1".getBytes());
                 long timestamp = System.currentTimeMillis();
