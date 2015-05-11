@@ -29,18 +29,11 @@ public class Main extends Configured implements Tool {
         String inputDir = "";
         String tableName = "";
 
-        for (int i=0; i<strings.length; i++){
-            System.out.println(strings[i]);
-            if (strings[i].equals("-zz")){
-                zookeepers = strings[i+1].split(",");
-            }
-            else if (strings[i].equals("-i")){
-                inputDir = strings[i+1];
-            }
-            else if (strings[i].equals("-t")){
-                tableName = strings[i+1];
-            }
-        }
+        //this is bad, you know..
+        zookeepers = new String[]{strings[3], strings[4]};
+        inputDir = strings[5];
+        tableName = strings[6];
+
 
         job1.setJarByClass(Main.class);
         job1.setInputFormatClass(TextInputFormat.class);
