@@ -6,6 +6,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -19,18 +20,18 @@ public class Main extends Configured implements Tool {
     public int run(String[] strings) throws Exception {
         Job job1 = new Job(getConf(),Main.class.getName());
         String[] zookeepers = new String[2];
-        String inputDir = "";
+        String[] inputDir;
         String tableName = "";
 
         //this is bad, you know..
         zookeepers = new String[]{strings[0], strings[1]};
-        inputDir = strings[2];
+        inputDir = strings[2].split(",");
         tableName = strings[3];
 
 
         job1.setJarByClass(Main.class);
         job1.setInputFormatClass(TextInputFormat.class);
-        TextInputFormat.setInputPaths(job1, new Path(inputDir));
+        TextInputFormat.setInputPaths(job1, new Path(inputDir[0]), new Path(inputDir[1]));
         job1.setMapperClass(Job1.class);
         job1.setNumReduceTasks(0);
         job1.setOutputFormatClass(AccumuloOutputFormat.class);
