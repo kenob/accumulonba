@@ -51,7 +51,8 @@ public class Main extends Configured implements Tool {
 
 
     public static void main(String[] args) throws Exception {
-        ToolRunner.run(CachedConfiguration.getInstance(), new Main(), args);
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new Main(), args);
+        System.exit(res);
     }
 
     public class Job1{
