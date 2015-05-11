@@ -21,7 +21,7 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
     public void map(LongWritable key, Text value, Context context) {
         String[] words = value.toString().split("\\s+");
         for (String word : words) {
-//            if (word.equalsIgnoreCase("win") || word.equalsIgnoreCase("lose")) {
+            if (word.equalsIgnoreCase("win") || word.equalsIgnoreCase("lose")) {
                 Path path = ((FileSplit) context.getInputSplit()).getPath();
                 String pathString = ((FileSplit) context.getInputSplit()).getPath().toString();
                 String[] pathNames = pathString.split("/");
@@ -43,7 +43,7 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-//            }
+            }
         }
     }
 }
