@@ -31,7 +31,7 @@ public class Main extends Configured implements Tool {
         job1.setJarByClass(Main.class);
         job1.setInputFormatClass(TextInputFormat.class);
         TextInputFormat.setInputPaths(job1, new Path(inputDir));
-        job1.setMapperClass(Job1.Map.class);
+        job1.setMapperClass(Job1.class);
         job1.setNumReduceTasks(0);
         job1.setOutputFormatClass(AccumuloOutputFormat.class);
         job1.setOutputKeyClass(Text.class);
