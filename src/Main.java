@@ -30,9 +30,9 @@ public class Main extends Configured implements Tool {
         String tableName = "";
 
         //this is bad, you know..
-        zookeepers = new String[]{strings[3], strings[4]};
-        inputDir = strings[5];
-        tableName = strings[6];
+        zookeepers = new String[]{strings[0], strings[1]};
+        inputDir = strings[2];
+        tableName = strings[3];
 
 
         job1.setJarByClass(Main.class);
