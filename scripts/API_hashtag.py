@@ -28,7 +28,7 @@ def get_twitter_feed(t, name, hashtag, output_dir):
 	tweets = data['statuses']
 
 	#NAME OUR OUTPUT FILE - %i WILL BE REPLACED BY CURRENT MONTH, DAY, AND YEAR
-	outfn = os.path.join(output_dir, name+"|"+hashtag+".csv")
+	outfn = os.path.join(output_dir, name+"##"+hashtag+".csv")
 
 	#NAMES FOR HEADER ROW IN OUTPUT FILE
 	fields = "created_at text".split()
