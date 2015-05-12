@@ -26,8 +26,8 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
                 String pathString = ((FileSplit) context.getInputSplit()).getPath().toString();
                 String[] pathNames = pathString.split("/");
                 String teamData = pathNames[pathNames.length - 1].split("\\.")[0];
-                String teamName = teamData.split("\\|")[0];
-                String teamHashTag = teamData.split("\\|")[1];
+                String teamName = teamData.split("|")[0];
+                String teamHashTag = teamData.split("|")[1];
                 String conference = pathNames[pathNames.length - 2];
                 Text teamID = new Text(teamName);
                 Text hashTagText = new Text(teamHashTag);
