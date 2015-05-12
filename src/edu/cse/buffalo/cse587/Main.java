@@ -2,12 +2,10 @@ package edu.cse.buffalo.cse587;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.admin.SecurityOperations;
 import org.apache.accumulo.core.client.admin.TableOperations;
-import org.apache.accumulo.core.client.impl.thrift.TableOperation;
 import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.file.rfile.bcfile.TFile;
 import org.apache.accumulo.core.iterators.LongCombiner;
 import org.apache.accumulo.core.iterators.user.SummingCombiner;
 import org.apache.accumulo.core.security.Authorizations;
@@ -17,13 +15,11 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * Created by keno on 5/9/15.
@@ -51,6 +47,7 @@ public class Main extends Configured implements Tool {
         job1.setNumReduceTasks(0);
         job1.setOutputFormatClass(AccumuloOutputFormat.class);
         job1.setOutputKeyClass(Text.class);
+
         job1.setOutputValueClass(Mutation.class);
 
         //Table creation and initialization
@@ -65,6 +62,7 @@ public class Main extends Configured implements Tool {
         secOp.grantTablePermission("east", tableName, TablePermission.READ);
         secOp.grantTablePermission("west", tableName, TablePermission.READ);
 
+
         //Wordcount iterator
         IteratorSetting is = new IteratorSetting(10, "wCounter", SummingCombiner.class);
         SummingCombiner.setEncodingType(is, LongCombiner.Type.STRING);
@@ -73,6 +71,8 @@ public class Main extends Configured implements Tool {
         tableOp.attachIterator(tableName, is);
 
         AccumuloOutputFormat.setOutputInfo(job1.getConfiguration(), "root", "acc".getBytes(), true, tableName);
+
+
         AccumuloOutputFormat.setZooKeeperInstance(job1.getConfiguration(), zookeepers[0], zookeepers[1]);
         job1.waitForCompletion(true);
 
@@ -83,6 +83,9 @@ public class Main extends Configured implements Tool {
         tableOp.create(finalTableName);
         secOp.grantTablePermission("east", finalTableName, TablePermission.READ);
         secOp.grantTablePermission("west", finalTableName, TablePermission.READ);
+        secOp.grantTablePermission("root", finalTableName, TablePermission.READ);
+        secOp.grantTablePermission("root", finalTableName, TablePermission.WRITE);
+
 
         createRankings(conn, finalTableName, tableName);
         return 0;
@@ -91,7 +94,7 @@ public class Main extends Configured implements Tool {
     private void createRankings(Connector conn, String outputTableName, String inputTable) throws TableNotFoundException {
         /* Reads from the input table name, ranks teams, and writes to the output table
         * */
-        Authorizations auths = new Authorizations("east", "west");
+        Authorizations auths = new Authorizations("east");
         org.apache.accumulo.core.client.Scanner scanner = conn.createScanner(inputTable, auths);
         scanner.fetchColumnFamily(Job1.hashTagFamily);
         scanner.fetchColumnFamily(Job1.wordFamily);
