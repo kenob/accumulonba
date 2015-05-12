@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/venv/bin/python
 
 """
 
@@ -95,7 +95,6 @@ def get_all_csvs():
 		conference_dir = os.path.join(output_dir, dir_map[dat.split('_')[0]])
 		if not os.path.exists(conference_dir):
 			os.mkdir(conference_dir)
-		for team in team_data[dat]:
 			get_twitter_feed(t, team["name"].trim() + "|" + team["hashtag"], conference_dir)
 			
 if __name__=="__main__":
