@@ -1,15 +1,16 @@
 package edu.cse.buffalo.cse587;
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.Instance;
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
+import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.admin.SecurityOperations;
 import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.accumulo.core.client.impl.thrift.TableOperation;
 import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
+import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.file.rfile.bcfile.TFile;
 import org.apache.accumulo.core.iterators.LongCombiner;
 import org.apache.accumulo.core.iterators.user.SummingCombiner;
+import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.TablePermission;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configured;
@@ -20,6 +21,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Created by keno on 5/9/15.
@@ -32,6 +36,7 @@ public class Main extends Configured implements Tool {
         String[] zookeepers = new String[2];
         String[] inputDir;
         String tableName = "";
+        String finalTableName = "NBARankings";
 
         //this is bad, you know..
         zookeepers = new String[]{strings[0], strings[1]};
@@ -70,9 +75,31 @@ public class Main extends Configured implements Tool {
         AccumuloOutputFormat.setOutputInfo(job1.getConfiguration(), "root", "acc".getBytes(), true, tableName);
         AccumuloOutputFormat.setZooKeeperInstance(job1.getConfiguration(), zookeepers[0], zookeepers[1]);
         job1.waitForCompletion(true);
+
+        //Rank the teams and write to a new table
+        if (tableOp.exists(finalTableName)){
+            tableOp.delete(finalTableName);
+        }
+        tableOp.create(finalTableName);
+        secOp.grantTablePermission("east", finalTableName, TablePermission.READ);
+        secOp.grantTablePermission("west", finalTableName, TablePermission.READ);
+
+        createRankings(conn, finalTableName, tableName);
         return 0;
     }
 
+    private void createRankings(Connector conn, String outputTableName, String inputTable) throws TableNotFoundException {
+        /* Reads from the input table name, ranks teams, and writes to the output table
+        * */
+        Authorizations auths = new Authorizations("east", "west");
+        org.apache.accumulo.core.client.Scanner scanner = conn.createScanner(inputTable, auths);
+        scanner.fetchColumnFamily(Job1.hashTagFamily);
+        scanner.fetchColumnFamily(Job1.wordFamily);
+
+        for (Map.Entry<Key, Value> kv : scanner){
+            System.out.println(kv.getKey() + " - " + kv.getValue());
+        }
+    }
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new Main(), args);

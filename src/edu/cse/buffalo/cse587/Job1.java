@@ -20,6 +20,9 @@ import java.util.HashSet;
 public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
     static HashSet<String> teams = new HashSet<String>();
     static Value count = new Value("1".getBytes());
+    static Text hashTagFamily = new Text("hashtag");
+    static Text wordFamily = new Text("word");
+
     @Override
     public void map(LongWritable key, Text value, Context context) {
         Path path = ((FileSplit) context.getInputSplit()).getPath();
@@ -48,7 +51,8 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
         long timestamp = System.currentTimeMillis();
         ColumnVisibility colVis = new ColumnVisibility(conference);
         Mutation mutation = new Mutation(teamID);
-        mutation.put(hashTagText, wordText, colVis, timestamp, count);
+        mutation.put(hashTagFamily, hashTagText, colVis, timestamp, count);
+        mutation.put(wordFamily, wordText, colVis, timestamp, count);
         try {
             context.write(null, mutation);
         } catch (IOException e) {
