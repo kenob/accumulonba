@@ -34,7 +34,7 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
                 long timestamp = System.currentTimeMillis();
                 ColumnVisibility colVis = new ColumnVisibility(conference);
                 Mutation mutation = new Mutation(teamID);
-                mutation.put(hashTagText, wordText, colVis, timestamp, count);
+                mutation.put(wordText, hashTagText, colVis, timestamp, count);
 
                 try {
                     context.write(null, mutation);
