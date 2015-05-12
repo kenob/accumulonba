@@ -1,0 +1,9 @@
+createuser east
+grant Table.READ -u east -t nbaTeams
+setauths -u east -s east
+
+createuser west
+grant Table.READ -u east -t nbaTeams
+setauths -u west -s west
+
+quit
