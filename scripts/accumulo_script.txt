@@ -8,4 +8,6 @@ createuser west
 grant Table.READ -u east -t nbaTeams
 setauths -u west -s west
 
+setauths -u root -s east,west
+
 quit
