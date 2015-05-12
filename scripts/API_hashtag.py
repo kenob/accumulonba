@@ -21,14 +21,14 @@ import subprocess
 
 dir_map = {'Eastern':'east', 'Western':'west'}
 
-def get_twitter_feed(t, hashtag, output_dir):
+def get_twitter_feed(t, name, hashtag, output_dir):
 	#hashtag = 'Celtics' ##### this line need to change
 	delimiter = ','
 	data = t.search(q='#'+hashtag, count=100)
 	tweets = data['statuses']
 
 	#NAME OUR OUTPUT FILE - %i WILL BE REPLACED BY CURRENT MONTH, DAY, AND YEAR
-	outfn = output_dir + "/" +hashtag+".csv"
+	outfn = os.path.join(output_dir, name+"|"+hashtag+".csv")
 
 	#NAMES FOR HEADER ROW IN OUTPUT FILE
 	fields = "created_at text".split()
@@ -74,30 +74,28 @@ def get_team_data(input_file):
 					else:
 						this_team["name"] = this_team["name"] + word + " "
 				team_data[key].append(this_team)
-		print team_data
 	return team_data
 	 
 	 
 def get_all_csvs():
-	now = int(time.time())
+    now = int(time.time())
 	#FOR OAUTH AUTHENTICATION -- NEEDED TO ACCESS THE TWITTER API
-	t = Twython(app_key='qtW8Q4270j67gooVD19tvAGo9', #REPLACE 'APP_KEY' WITH YOUR APP KEY, ETC., IN THE NEXT 4 LINES
+    t = Twython(app_key='qtW8Q4270j67gooVD19tvAGo9', #REPLACE 'APP_KEY' WITH YOUR APP KEY, ETC., IN THE NEXT 4 LINES
 		app_secret='0Jnd7nIrLYv3BhZdiT98iKcaQKZBEipXziib0CitV2RZ6zXATQ',
 		oauth_token='2652772872-W9GTB3c973ayomnFPW1qEFgieNpskT5yJAD0c29',
 		oauth_token_secret='nHdpiqLHzQVGSfVqgM7JgFN89FSpdkJpLdTNX1YYskx0G')
-		
-	output_dir = "teamfeed-%s" % (now)
-	if not os.path.exists(output_dir):
-		os.mkdir(output_dir)
-		
-	team_data = get_team_data("team_data.txt")
-	for dat in team_data:
-		conference_dir = os.path.join(output_dir, dir_map[dat.split('_')[0]])
-		if not os.path.exists(conference_dir):
-			os.mkdir(conference_dir)
+    output_dir = "teamfeed-%s" % now
 
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+		
+    team_data = get_team_data("team_data.txt")
+    for dat in team_data:
+        conference_dir = os.path.join(output_dir, dir_map[dat.split('_')[0]])
+        if not os.path.exists(conference_dir):
+            os.mkdir(conference_dir)
         for team in team_data[dat]:
-            get_twitter_feed(t, team["name"].strip() + "|" + team["hashtag"], conference_dir)
+            get_twitter_feed(t, team["name"].strip(), team["hashtag"], conference_dir)
 			
 if __name__=="__main__":
 	get_all_csvs()
