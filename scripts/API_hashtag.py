@@ -96,7 +96,7 @@ def get_all_csvs():
 		if not os.path.exists(conference_dir):
 			os.mkdir(conference_dir)
 		for team in team_data[dat]:
-			get_twitter_feed(t, team["name"].trim() + "#" + team["hashtag"], conference_dir)
+			get_twitter_feed(t, team["name"].trim() + "|" + team["hashtag"], conference_dir)
 			
 if __name__=="__main__":
 	get_all_csvs()

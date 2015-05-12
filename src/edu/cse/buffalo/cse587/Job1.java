@@ -25,16 +25,19 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
                 Path path = ((FileSplit) context.getInputSplit()).getPath();
                 String pathString = ((FileSplit) context.getInputSplit()).getPath().toString();
                 String[] pathNames = pathString.split("/");
-                String teamName = pathNames[pathNames.length - 1].split("\\.")[0];
+                String teamData = pathNames[pathNames.length - 1].split("\\.")[0];
+                String teamName = teamData.split("\\|")[0];
+                String teamHashTag = teamData.split("\\|")[1];
                 String conference = pathNames[pathNames.length - 2];
                 Text teamID = new Text(teamName);
+                Text hashTagText = new Text(teamHashTag);
                 Text wordText = new Text(word.toLowerCase());
                 Text c = new Text(word);
                 Value count = new Value("1".getBytes());
                 long timestamp = System.currentTimeMillis();
                 ColumnVisibility colVis = new ColumnVisibility(conference);
                 Mutation mutation = new Mutation(wordText);
-                mutation.put(new Text(("team")), teamID, colVis, timestamp, count);
+                mutation.put(teamID, hashTagText, colVis, timestamp, count);
 
                 try {
                     context.write(null, mutation);
