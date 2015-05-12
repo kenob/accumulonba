@@ -3,12 +3,14 @@ import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
+import org.apache.accumulo.core.client.admin.SecurityOperations;
 import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.accumulo.core.client.impl.thrift.TableOperation;
 import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.iterators.LongCombiner;
 import org.apache.accumulo.core.iterators.user.SummingCombiner;
+import org.apache.accumulo.core.security.TablePermission;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -50,18 +52,20 @@ public class Main extends Configured implements Tool {
         Instance instance = new ZooKeeperInstance(zookeepers[0], zookeepers[1]);
         Connector conn = instance.getConnector("root", "acc".getBytes());
         TableOperations tableOp = conn.tableOperations();
-
+        SecurityOperations secOp = conn.securityOperations();
         if (tableOp.exists(tableName)){
             tableOp.delete(tableName);
         }
         tableOp.create(tableName);
+        secOp.grantTablePermission("east", tableName, TablePermission.READ);
+        secOp.grantTablePermission("west", tableName, TablePermission.READ);
+
         //Wordcount iterator
         IteratorSetting is = new IteratorSetting(10, "wCounter", SummingCombiner.class);
         SummingCombiner.setEncodingType(is, LongCombiner.Type.STRING);
         SummingCombiner.setLossyness(is, true);
         SummingCombiner.setCombineAllColumns(is, true);
         tableOp.attachIterator(tableName, is);
-
 
         AccumuloOutputFormat.setOutputInfo(job1.getConfiguration(), "root", "acc".getBytes(), true, tableName);
         AccumuloOutputFormat.setZooKeeperInstance(job1.getConfiguration(), zookeepers[0], zookeepers[1]);
