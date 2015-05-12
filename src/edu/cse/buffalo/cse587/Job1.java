@@ -23,9 +23,9 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
         for (String word : words) {
             if (word.equalsIgnoreCase("win") || word.equalsIgnoreCase("lose")) {
                 Path path = ((FileSplit) context.getInputSplit()).getPath();
-                String teamData = path.getName();
-                String teamName = teamData.split("##")[0];
-                String teamHashTag = teamData.split("##")[1];
+                String[] teamData = path.getName().split("##");
+                String teamName = teamData[0];
+                String teamHashTag = teamData[1].split("\\.")[0];
                 String conference = path.getParent().getName();
                 Text teamID = new Text(teamName);
                 Text hashTagText = new Text(teamHashTag);
