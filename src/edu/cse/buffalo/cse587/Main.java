@@ -100,8 +100,17 @@ public class Main extends Configured implements Tool {
         scanner.fetchColumnFamily(Job1.wordFamily);
 
         for (Map.Entry<Key, Value> kv : scanner){
-            System.out.println(kv.getKey() + " - " + kv.getValue());
+            System.out.println(kv.getKey().getRow() + " - " + getRowId(Integer.parseInt(kv.getValue().toString()), 8));
         }
+    }
+
+
+    private static String getRowId(int ind, int length){
+        String res = Integer.toString(ind);
+        while (res.length() < length){
+            res = "0" + res;
+        }
+        return res;
     }
 
     public static void main(String[] args) throws Exception {
