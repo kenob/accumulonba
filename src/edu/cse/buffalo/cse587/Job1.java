@@ -19,9 +19,10 @@ import java.util.HashSet;
  */
 public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
     static HashSet<String> teams = new HashSet<String>();
-    static Value count = new Value("1".getBytes());
-    static Text hashTagFamily = new Text("hashtag");
-    static Text wordFamily = new Text("word");
+    static final Value count = new Value("1".getBytes());
+    static final Text hashTagFamily = new Text("hashtag");
+    static final Text wordFamily = new Text("word");
+    public static final Text nameFamily = new Text("Team Name");
 
     @Override
     public void map(LongWritable key, Text value, Context context) {
@@ -50,7 +51,7 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
     private void write(Text teamMeta, String word, Text teamID, String conference, Context context, Value count){
         Text wordText = new Text(word.toLowerCase());
         long timestamp = System.currentTimeMillis();
-        ColumnVisibility colVis = new ColumnVisibility(conference);
+        ColumnVisibility colVis = new ColumnVisibility(conference + "&" + word);
         Mutation mutation = new Mutation(teamID);
         mutation.put(wordFamily, wordText, colVis, timestamp, count);
         try {

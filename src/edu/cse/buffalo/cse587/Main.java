@@ -9,6 +9,7 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.LongCombiner;
 import org.apache.accumulo.core.iterators.user.SummingCombiner;
 import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.accumulo.core.security.TablePermission;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configured;
@@ -91,26 +92,38 @@ public class Main extends Configured implements Tool {
         return 0;
     }
 
-    private void createRankings(Connector conn, String outputTableName, String inputTable) throws TableNotFoundException {
+    private void createRankings(Connector conn, String outputTableName, String inputTable) throws TableNotFoundException,
+            MutationsRejectedException {
         /* Reads from the input table name, ranks teams, and writes to the output table
         * */
-        Authorizations auths = new Authorizations("east");
+        Authorizations auths = new Authorizations("east", "west", "win", "lose");
         org.apache.accumulo.core.client.Scanner scanner = conn.createScanner(inputTable, auths);
+        BatchWriter bw = conn.createBatchWriter(outputTableName, 10000000L, 120, 3);
         scanner.fetchColumnFamily(Job1.hashTagFamily);
         scanner.fetchColumnFamily(Job1.wordFamily);
 
         for (Map.Entry<Key, Value> kv : scanner){
             int value = Integer.parseInt(kv.getValue().toString());
-            System.out.println(getRowId(value, 8) + ": " + kv.getKey().getRow() + "| "
-                    + kv.getKey().getColumnFamily(Job1.wordFamily)
-                    + " - " + (value - 1));
+            // Increase length argument for denser data sets
+            Text key = new Text(getRowId(value, 6));
+            String[] meta = kv.getKey().getRow().toString().split("##");
+            String teamName = meta[0];
+            ColumnVisibility cv = new ColumnVisibility(kv.getKey().getColumnVisibility());
+            String teamHashTag = meta[1];
+            Mutation m = new Mutation(key);
+            // Creates the new table, with columns as specified
+            m.put(Job1.nameFamily, new Text(teamName), cv, new Value(Integer.toString(value - 1).getBytes()));
+            m.put(Job1.hashTagFamily, new Text(teamHashTag), cv, new Value(Integer.toString(value - 1).getBytes()));
+            m.put(Job1.wordFamily, kv.getKey().getColumnFamily(Job1.wordFamily),
+                    cv, new Value(Integer.toString(value - 1).getBytes()));
+            bw.addMutation(m);
         }
+        bw.close();
     }
 
 
     private static String getRowId(int value, int length){
         int max = (int) Math.pow(10, length);
-        // This will cause clashes for a denser dataset
         return "row_" + Math.abs(max - value);
     }
 

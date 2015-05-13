@@ -1,11 +1,11 @@
 deleteuser east
 createuser east
-setauths -u east -s east
+setauths -u east -s east,win,lose
 
 deleteuser west
 createuser west
-setauths -u west -s west
+setauths -u west -s west,win,lose
 
-setauths -u root -s east,west
+setauths -u root -s east,west,win,lose
 
 quit
