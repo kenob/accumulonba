@@ -56,8 +56,7 @@ public class Main extends Configured implements Tool {
 
         job1.setJarByClass(Main.class);
         job1.setInputFormatClass(TextInputFormat.class);
-//        TextInputFormat.setInputPaths(job1, new Path(inputDir));
-        FileInputFormat.setInputPaths(job1, new Path(inputDir,"east"), new Path(inputDir, "west"));
+        TextInputFormat.setInputPaths(job1, new Path(inputDir,"east"), new Path(inputDir, "west"));
         job1.setMapperClass(Job1.class);
         job1.setNumReduceTasks(0);
         job1.setOutputFormatClass(AccumuloOutputFormat.class);
