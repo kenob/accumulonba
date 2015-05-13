@@ -27,10 +27,10 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
     @Override
     public void map(LongWritable key, Text value, Context context) {
         Path path = ((FileSplit) context.getInputSplit()).getPath();
-        Text teamMeta = new Text(path.getName().split("\\.")[0]);
+        Text teamMeta = new Text(path.getName().replace(".csv",""));
         String[] teamData = path.getName().split("##");
         String teamName = teamData[0];
-        String teamHashTag = teamData[1].split("\\.")[0];
+        String teamHashTag = teamData[1].substring(0, teamData[0].lastIndexOf('.'));
         String conference = path.getParent().getName();
         String[] words = value.toString().split("\\s+");
         Text teamID = new Text(teamName);

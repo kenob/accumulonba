@@ -105,16 +105,16 @@ public class Main extends Configured implements Tool {
         for (Map.Entry<Key, Value> kv : scanner){
             int value = Integer.parseInt(kv.getValue().toString());
             // Increase length argument for denser data sets
-            Text key = new Text(getRowId(value, 6));
             String[] meta = kv.getKey().getRow().toString().split("##");
             String teamName = meta[0];
             ColumnVisibility cv = new ColumnVisibility(kv.getKey().getColumnVisibility());
             String teamHashTag = meta[1];
+            Text key = new Text(getRowId(value, 6, teamHashTag));
             Mutation m = new Mutation(key);
             // Creates the new table, with columns as specified
             m.put(Job1.nameFamily, new Text(teamName), cv, new Value(Integer.toString(value - 1).getBytes()));
             m.put(Job1.hashTagFamily, new Text(teamHashTag), cv, new Value(Integer.toString(value - 1).getBytes()));
-            m.put(Job1.wordFamily, kv.getKey().getColumnFamily(Job1.wordFamily),
+            m.put(Job1.wordFamily, kv.getKey().getColumnQualifier(Job1.wordFamily),
                     cv, new Value(Integer.toString(value - 1).getBytes()));
             bw.addMutation(m);
         }
@@ -122,9 +122,9 @@ public class Main extends Configured implements Tool {
     }
 
 
-    private static String getRowId(int value, int length){
+    private static String getRowId(int value, int length, String suffix){
         int max = (int) Math.pow(10, length);
-        return "row_" + Math.abs(max - value);
+        return Math.abs(max - value) + "_" + suffix;
     }
 
     public static void main(String[] args) throws Exception {
