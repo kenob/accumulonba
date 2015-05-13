@@ -100,18 +100,17 @@ public class Main extends Configured implements Tool {
         scanner.fetchColumnFamily(Job1.wordFamily);
 
         for (Map.Entry<Key, Value> kv : scanner){
-            System.out.println(getRowId(Integer.parseInt(kv.getValue().toString()), 8) + ": " + kv.getKey().getRow()
-                    + " - " + kv.getValue());
+            int value = Integer.parseInt(kv.getValue().toString());
+            System.out.println(getRowId(value, 8) + ": " + kv.getKey().getRow()
+                    + " - " + (value - 1));
         }
     }
 
 
     private static String getRowId(int value, int length){
-        int max = (int) Math.pow(2, length);
-//        while (res.length() < length){
-//            res = "0" + res;
-//        }
-        return "row_" + (max - value);
+        int max = (int) Math.pow(10, length);
+        // This will cause clashes for a denser dataset
+        return "row_" + Math.abs(max - value);
     }
 
     public static void main(String[] args) throws Exception {

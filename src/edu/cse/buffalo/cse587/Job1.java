@@ -26,6 +26,7 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
     @Override
     public void map(LongWritable key, Text value, Context context) {
         Path path = ((FileSplit) context.getInputSplit()).getPath();
+        Text teamMeta = new Text(path.getName().split("\\.")[0]);
         String[] teamData = path.getName().split("##");
         String teamName = teamData[0];
         String teamHashTag = teamData[1].split("\\.")[0];
@@ -36,22 +37,21 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
         if (!teams.contains(teamHashTag)){
             // Dummy write to ensure that each team has at least one "win" and "lose" entry
             teams.add(teamHashTag);
-            write(hashTagText, "win", teamID, conference, context, count);
-            write(hashTagText, "lose", teamID, conference, context, count);
+            write(teamMeta, "win", teamID, conference, context, count);
+            write(teamMeta, "lose", teamID, conference, context, count);
         }
         for (String word : words) {
             if (word.equalsIgnoreCase("win") || word.equalsIgnoreCase("lose")) {
-                write(hashTagText, word, teamID, conference, context, count);
+                write(teamMeta, word, teamID, conference, context, count);
             }
         }
     }
 
-    private void write(Text hashTagText, String word, Text teamID, String conference, Context context, Value count){
+    private void write(Text teamMeta, String word, Text teamID, String conference, Context context, Value count){
         Text wordText = new Text(word.toLowerCase());
         long timestamp = System.currentTimeMillis();
         ColumnVisibility colVis = new ColumnVisibility(conference);
         Mutation mutation = new Mutation(teamID);
-        mutation.put(hashTagFamily, hashTagText, colVis, timestamp, count);
         mutation.put(wordFamily, wordText, colVis, timestamp, count);
         try {
             context.write(null, mutation);
