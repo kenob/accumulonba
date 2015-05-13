@@ -101,7 +101,8 @@ public class Main extends Configured implements Tool {
 
         for (Map.Entry<Key, Value> kv : scanner){
             int value = Integer.parseInt(kv.getValue().toString());
-            System.out.println(getRowId(value, 8) + ": " + kv.getKey().getRow()
+            System.out.println(getRowId(value, 8) + ": " + kv.getKey().getRow() + "| "
+                    + kv.getKey().getColumnFamily(Job1.wordFamily)
                     + " - " + (value - 1));
         }
     }
