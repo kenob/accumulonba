@@ -16,6 +16,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -30,20 +31,33 @@ public class Main extends Configured implements Tool {
     @Override
     public int run(String[] strings) throws Exception {
         Job job1 = new Job(getConf(),Main.class.getName());
-        String[] zookeepers = new String[2];
-        String[] inputDir;
-        String tableName = "";
-        String finalTableName = "NBARankings";
+        String[] zookeepers;
+        String inputDir;
 
         //this is bad, you know..
         zookeepers = new String[]{strings[0], strings[1]};
-        inputDir = strings[2].split(",");
-        tableName = strings[3];
+        inputDir = strings[2];
 
+        String finalTable = "NBARankings";
+        String intermediateTable = "nbaIntermediate";
+
+        //Default username and password
+        String username = "root";
+        byte[] password = "acc".getBytes();
+
+        for (int i = 0; i < strings.length; i++){
+            if (strings[i].equals("-u")){
+                username = strings[i+1];
+            }
+            else if (strings[i].equals("-p")){
+                password = strings[i+1].getBytes();
+            }
+        }
 
         job1.setJarByClass(Main.class);
         job1.setInputFormatClass(TextInputFormat.class);
-        TextInputFormat.setInputPaths(job1, new Path(inputDir[0]), new Path(inputDir[1]));
+//        TextInputFormat.setInputPaths(job1, new Path(inputDir));
+        FileInputFormat.setInputPaths(job1, new Path(inputDir,"east"), new Path(inputDir, "west"));
         job1.setMapperClass(Job1.class);
         job1.setNumReduceTasks(0);
         job1.setOutputFormatClass(AccumuloOutputFormat.class);
@@ -53,15 +67,15 @@ public class Main extends Configured implements Tool {
 
         //Table creation and initialization
         Instance instance = new ZooKeeperInstance(zookeepers[0], zookeepers[1]);
-        Connector conn = instance.getConnector("root", "acc".getBytes());
+        Connector conn = instance.getConnector(username, password);
         TableOperations tableOp = conn.tableOperations();
         SecurityOperations secOp = conn.securityOperations();
-        if (tableOp.exists(tableName)){
-            tableOp.delete(tableName);
+        if (tableOp.exists(intermediateTable)){
+            tableOp.delete(intermediateTable);
         }
-        tableOp.create(tableName);
-        secOp.grantTablePermission("east", tableName, TablePermission.READ);
-        secOp.grantTablePermission("west", tableName, TablePermission.READ);
+        tableOp.create(intermediateTable);
+        secOp.grantTablePermission("east", intermediateTable, TablePermission.READ);
+        secOp.grantTablePermission("west", intermediateTable, TablePermission.READ);
 
 
         //Wordcount iterator
@@ -69,26 +83,26 @@ public class Main extends Configured implements Tool {
         SummingCombiner.setEncodingType(is, LongCombiner.Type.STRING);
         SummingCombiner.setLossyness(is, true);
         SummingCombiner.setCombineAllColumns(is, true);
-        tableOp.attachIterator(tableName, is);
+        tableOp.attachIterator(intermediateTable, is);
 
-        AccumuloOutputFormat.setOutputInfo(job1.getConfiguration(), "root", "acc".getBytes(), true, tableName);
+        AccumuloOutputFormat.setOutputInfo(job1.getConfiguration(), "root", "acc".getBytes(), true, intermediateTable);
 
 
         AccumuloOutputFormat.setZooKeeperInstance(job1.getConfiguration(), zookeepers[0], zookeepers[1]);
         job1.waitForCompletion(true);
 
         //Rank the teams and write to a new table
-        if (tableOp.exists(finalTableName)){
-            tableOp.delete(finalTableName);
+        if (tableOp.exists(finalTable)){
+            tableOp.delete(finalTable);
         }
-        tableOp.create(finalTableName);
-        secOp.grantTablePermission("east", finalTableName, TablePermission.READ);
-        secOp.grantTablePermission("west", finalTableName, TablePermission.READ);
-        secOp.grantTablePermission("root", finalTableName, TablePermission.READ);
-        secOp.grantTablePermission("root", finalTableName, TablePermission.WRITE);
+        tableOp.create(finalTable);
+        secOp.grantTablePermission("east", finalTable, TablePermission.READ);
+        secOp.grantTablePermission("west", finalTable, TablePermission.READ);
+        secOp.grantTablePermission("root", finalTable, TablePermission.READ);
+        secOp.grantTablePermission("root", finalTable, TablePermission.WRITE);
 
 
-        createRankings(conn, finalTableName, tableName);
+        createRankings(conn, finalTable, intermediateTable);
         return 0;
     }
 
@@ -113,7 +127,7 @@ public class Main extends Configured implements Tool {
             Value val = new Value(valBytes);
             Text wordText = new Text();
             kv.getKey().getColumnQualifier(wordText);
-            Text key = new Text(getRowId(value, 6, wordText.toString().charAt(0), teamHashTag));
+            Text key = new Text(getRowId(value, 6, wordText.toString().charAt(0), meta[1]));
             Mutation m = new Mutation(key);
             // Creates the new table, with columns as specified
             m.put(Job1.nameFamily, new Text(teamName), cv,val);

@@ -20,9 +20,8 @@ hadoop fs -rmr /user/guest/teamfeed
 
 hadoop fs -copyFromLocal ~/accumulonba/scripts/teamfeed* /user/guest/teamfeed
 
-~/cdse/accumulo/accumulo-1.4.2/bin/tool.sh \
-/home/guest/hw5/target/hw5-1.0-SNAPSHOT.jar \
+~/cdse/accumulo/accumulo-1.4.2/bin/tool.sh /home/guest/hw5/target/hw5-1.0-SNAPSHOT.jar \
 edu.cse.buffalo.cse587.Main acc guestvb \
-/user/guest/teamfeed/east,/user/guest/teamfeed/west nbaTeams
+/user/guest/teamfeed
 
 
