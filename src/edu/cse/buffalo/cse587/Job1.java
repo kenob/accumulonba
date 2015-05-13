@@ -27,14 +27,11 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
     @Override
     public void map(LongWritable key, Text value, Context context) {
         Path path = ((FileSplit) context.getInputSplit()).getPath();
-        Text teamMeta = new Text(path.getName().replace(".csv",""));
+        Text teamMeta = new Text(path.getName().substring(0, path.getName().lastIndexOf('.')));
         String[] teamData = path.getName().split("##");
-        String teamName = teamData[0];
-        String teamHashTag = teamData[1].substring(0, teamData[0].lastIndexOf('.'));
+        String teamHashTag = teamData[1];
         String conference = path.getParent().getName();
         String[] words = value.toString().split("\\s+");
-        Text teamID = new Text(teamName);
-        Text hashTagText = new Text(teamHashTag);
         if (!teams.contains(teamHashTag)){
             // Dummy write to ensure that each team has at least one "win" and "lose" entry
             teams.add(teamHashTag);

@@ -110,12 +110,14 @@ public class Main extends Configured implements Tool {
             ColumnVisibility cv = new ColumnVisibility(kv.getKey().getColumnVisibility());
             String teamHashTag = meta[1];
             Text key = new Text(getRowId(value, 6, teamHashTag));
+            Value val = new Value(Integer.toString(value - 1).getBytes());
+            Text wordText = new Text();
+            kv.getKey().getColumnQualifier(wordText);
             Mutation m = new Mutation(key);
             // Creates the new table, with columns as specified
-            m.put(Job1.nameFamily, new Text(teamName), cv, new Value(Integer.toString(value - 1).getBytes()));
-            m.put(Job1.hashTagFamily, new Text(teamHashTag), cv, new Value(Integer.toString(value - 1).getBytes()));
-            m.put(Job1.wordFamily, kv.getKey().getColumnQualifier(Job1.wordFamily),
-                    cv, new Value(Integer.toString(value - 1).getBytes()));
+            m.put(Job1.nameFamily, new Text(teamName), cv,val);
+            m.put(Job1.hashTagFamily, new Text(teamHashTag), cv, val);
+            m.put(Job1.wordFamily, wordText, cv, val);
             bw.addMutation(m);
         }
         bw.close();
