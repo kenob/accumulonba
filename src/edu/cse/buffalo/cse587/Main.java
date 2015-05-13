@@ -108,25 +108,26 @@ public class Main extends Configured implements Tool {
             String[] meta = kv.getKey().getRow().toString().split("##");
             String teamName = meta[0];
             ColumnVisibility cv = new ColumnVisibility(kv.getKey().getColumnVisibility());
-            String teamHashTag = meta[1];
-            Text key = new Text(getRowId(value, 6, teamHashTag));
-            Value val = new Value(Integer.toString(value - 1).getBytes());
+            String teamHashTag = "#" + meta[1];
+            byte[] valBytes = Integer.toString(value - 1).getBytes();
+            Value val = new Value(valBytes);
             Text wordText = new Text();
             kv.getKey().getColumnQualifier(wordText);
+            Text key = new Text(getRowId(value, 6, wordText.toString().charAt(0), teamHashTag));
             Mutation m = new Mutation(key);
             // Creates the new table, with columns as specified
             m.put(Job1.nameFamily, new Text(teamName), cv,val);
             m.put(Job1.hashTagFamily, new Text(teamHashTag), cv, val);
-            m.put(Job1.wordFamily, wordText, cv, val);
+            m.put(wordText, new Text(valBytes), cv, val);
             bw.addMutation(m);
         }
         bw.close();
     }
 
 
-    private static String getRowId(int value, int length, String suffix){
+    private static String getRowId(int value, int length, char prefix, String suffix){
         int max = (int) Math.pow(10, length);
-        return Math.abs(max - value) + "_" + suffix;
+        return prefix + "_" + Math.abs(max - value) + "_" + suffix;
     }
 
     public static void main(String[] args) throws Exception {
