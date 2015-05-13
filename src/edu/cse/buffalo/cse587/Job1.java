@@ -38,21 +38,21 @@ public class Job1 extends Mapper<LongWritable, Text, Text, Mutation> {
         if (!teams.contains(teamHashTag)){
             // Dummy write to ensure that each team has at least one "win" and "lose" entry
             teams.add(teamHashTag);
-            write(teamMeta, "win", teamID, conference, context, count);
-            write(teamMeta, "lose", teamID, conference, context, count);
+            write(teamMeta, "win", conference, context, count);
+            write(teamMeta, "lose", conference, context, count);
         }
         for (String word : words) {
             if (word.equalsIgnoreCase("win") || word.equalsIgnoreCase("lose")) {
-                write(teamMeta, word, teamID, conference, context, count);
+                write(teamMeta, word, conference, context, count);
             }
         }
     }
 
-    private void write(Text teamMeta, String word, Text teamID, String conference, Context context, Value count){
+    private void write(Text teamMeta, String word, String conference, Context context, Value count){
         Text wordText = new Text(word.toLowerCase());
         long timestamp = System.currentTimeMillis();
         ColumnVisibility colVis = new ColumnVisibility(conference + "&" + word);
-        Mutation mutation = new Mutation(teamID);
+        Mutation mutation = new Mutation(teamMeta);
         mutation.put(wordFamily, wordText, colVis, timestamp, count);
         try {
             context.write(null, mutation);
